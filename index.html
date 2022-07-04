@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Sinuous</title>
+
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+<style>
+a{cursor:pointer;}
+html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}
+table{border-collapse:collapse;border-spacing:0;}
+fieldset,img{border:0;}
+address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}
+li{list-style:none;}
+caption,th{text-align:left;}
+/* h1,h2,h3,h4,h5,h6{font-size:100%;} */
+q:before,q:after{content:'';}
+abbr,acronym {border:0;font-variant:normal;}
+sup {vertical-align:text-top;}
+sub {vertical-align:text-bottom;}
+input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;outline-style:none;outline-width:0pt;}
+legend{color:#000;}
+a:focus,object,h1,h2,h3,h4,h5,h6{-moz-outline-style: none; border:0px;}
+/*input[type="Submit"]{cursor:pointer;}*/
+strong {font-weight: bold;}
+
+body {
+	overflow: hidden;
+	font-family: Helvetica, Arial, sans-serif;
+	color: #333333;
+	font-size: 11px;
+	background-color: #222222;
+	
+	
+		color: #fff;
+	background: #17181c;
+	font: 300 1em 'Fira Sans', sans-serif;
+	-webkit-box-pack: center;
+		-ms-flex-pack: center;
+			justify-content: center;
+	-ms-flex-line-pack: center;
+		align-content: center;
+	-webkit-box-align: center;
+		-ms-flex-align: center;
+			align-items: center;
+	text-align: center;
+	min-height: 100vh;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
+
+canvas {
+  background-color: #111111;
+}
+
+.ui {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  color: #999999;
+  text-align: left;
+  padding: 8px;
+  background-color: rgba(0,0,0,0.5);
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+}
+
+#message {
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  text-align: center;
+}
+
+#status {
+  position: absolute;
+  left: 25%;
+  top: 25%;
+  width: 50%;
+  height: 50%;
+  padding: 8px;
+  display: none;
+}
+
+
+#title {
+  margin-bottom: 20px;
+  color: #eeeeee;
+  font-size: 2vw;
+  
+}
+
+.ui ul {
+  margin: 10px 0 10px 0;
+  text-align: left;
+}
+
+
+#startButton {
+    position: absolute;
+    left: 38%;
+    top: 55%;
+    height: 25%;
+    width: 25%;
+    z-index: 99999999;
+    cursor: pointer;
+}
+
+#header {
+  position: absolute;
+  left: 20%;
+  top: 10%;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15vw ;
+  text-decoration: none;
+  color: white;
+  text-shadow: 0 1px 0 #ccc,
+               0 2px 0 #c9c9c9,
+               0 3px 0 #bbb,
+               0 4px 0 #b9b9b9,
+               0 5px 0 #aaa,
+               0 6px 1px rgba(0,0,0,.1),
+               0 0 5px rgba(0,0,0,.1),
+               0 1px 3px rgba(0,0,0,.3),
+               0 3px 5px rgba(0,0,0,.2),
+               0 5px 10px rgba(0,0,0,.25),
+               0 10px 10px rgba(0,0,0,.2),
+               0 20px 20px rgba(0,0,0,.15);
+			   text-shadow: 0px 5px 50px #666;
+}
+
+p {
+	position: relative;
+	top: 30%;
+}
+	
+
+</style>
+</head>
+<body>
+<canvas id='world'></canvas>
+<div id="status" class="ui" onselectstart = "return false"></div>
+<div id="message" class="ui" onselectstart = "return false">
+<br><br><br><br><br><br><br>
+	<br>
+  <h2 id="title"></h2>
+  <br>
+ <!--<div id="startButton" onClick = "init" onselectstart = "return false">-->
+<img id="startButton" src="btn_resume.svg"  onselectstart = "return false" >
+ <!--</div>-->
+ <br>
+ <br>
+ <!--<div id="help" onClick = "alert(help)" onselectstart = "return false">
+ <p>Help</p>
+ </div>-->
+
+</div>
+
+<script type="text/javascript">
+
+var bcolor = "black"
+var pcolor = "255, 255, 255";
+var playercolor = "blue";
+var pointcolor = "255,255,255";
+var textcolor = "white";
+
+var pointvx = 0.8;
+var pointvy = 0.8;
+var pointsize = 20; 
+var pquantity = 50;
+var fov = 250;
+var alpha = 1;
+var blur = 50;
+var life = 3;
+var pointq = 10000;
+
+var pointvx = 0;
+var pointvy = 0;
+var pointvz = 0;
+
+var spawnq = 1;
+var depth = 500;
+var randomdepth = 0;
+var isMobile = (navigator.userAgent.toLowerCase().indexOf('android') != -1) || (navigator.userAgent.toLowerCase().indexOf('iphone') != -1);
+var w = window.innerWidth;
+var h = window.innerHeight;
+var fk;
+var tk = 1.3;
+
+var hk = h / fk;
+var wk = w / fk;
+var k = Math.sqrt(wk*hk);
+var canvas;
+var ctx;
+
+var status;
+var message;
+var title;
+var startButton;
+
+var points = [];
+
+var particles = [];
+
+var player;
+
+var mouseX = w / 2;
+var mouseY = h / 2;
+var dx = 0;
+var dy = 0;
+var pr = 100;
+var mouseIsDown = false;
+
+var playing = false;
+var finished = false;
+var score = 0;
+var time = 0;
+
+
+var difficulty = 1;
+var difficultychange = 0.002;
+var velocity = { x:0, y: 0, z: -1};
+var interval;
+var tick = 0;
+
+if (isMobile){
+	fk = 1500;
+	blur = 0;
+	//pointsize = 40;
+	particlesize = 18;
+	tk = 1.5;
+	pr = 50
+} else {
+	fk = 2000;
+}
+
+
+function init(){
+	
+	canvas = document.getElementById('world');
+	status = document.getElementById('status');
+	message = document.getElementById('message');
+	title = document.getElementById('title');
+	startButton = document.getElementById('startButton');
+	
+	if (canvas && canvas.getContext) {
+		ctx = canvas.getContext('2d');
+		
+		// Register event listeners
+		document.addEventListener('mousemove', documentMouseMoveHandler, false);
+		document.addEventListener('mousedown', documentMouseDownHandler, false);
+		document.addEventListener('mouseup', documentMouseUpHandler, false);
+		canvas.addEventListener('touchstart', documentTouchStartHandler, false);
+		document.addEventListener('touchmove', documentTouchMoveHandler, false);
+		document.addEventListener('touchend', documentTouchEndHandler, false);
+		window.addEventListener('resize', windowResizeHandler, false);
+		startButton.addEventListener('mousedown', startButtonClickHandler, false);
+		startButton.addEventListener('touchstart', startButtonClickHandler, false);
+		player = new player();
+		
+		windowResizeHandler();
+		
+		setInterval(loop, 1000 / 60);
+	}
+}
+
+function startButtonClickHandler(event){
+	event.preventDefault();
+	
+	if( playing == false ) {
+		playing = true;
+		clearInterval(interval);
+		points = [];
+		score = 0;
+		difficulty = 1;
+		life = 3;
+		
+		mouseX = w / 2;
+		mouseY = h / 2;
+		player.x = w/2;
+		player.y = h/2;
+		
+		message.style.display = 'none';
+		
+	}
+}
+
+function gameOver() {
+	playing = false;
+    setTimeout(function(){
+		message.style.display = 'block';
+		finished = true;
+		interval = setInterval(function(){
+			color = Math.round(Math.random()*256) + ',' + Math.round(Math.random()*256) + ',' + Math.round(Math.random()*256) + '';
+			createParticles(Math.random() * w, Math.random() * h, 4, 4, -0.02, 50, 5, 20, 0.4, color);
+		},800);
+	}, 10);
+}
+
+function documentMouseMoveHandler(event){
+	if( mouseIsDown ){
+		mouseX = event.clientX - 10;
+		mouseY = event.clientY - 10;
+	}
+}
+
+function documentMouseDownHandler(event){
+	mouseIsDown = true;
+	mouseX = event.clientX - 10;
+	mouseY = event.clientY - 10;
+}
+
+function documentMouseUpHandler(event) {
+	mouseIsDown = false;
+}
+
+function documentTouchStartHandler(event) {
+	if(event.touches.length == 1) {
+		event.preventDefault();
+		
+		mouseX = event.touches[0].pageX - 10*wk;
+		mouseY = event.touches[0].pageY - 20*hk;
+		
+		mouseIsDown = true;
+	}
+}
+
+function documentTouchMoveHandler(event) {
+	if(event.touches.length == 1) {
+		//event.preventDefault();
+	
+		mouseX = event.touches[0].pageX - 10*wk;
+		mouseY = event.touches[0].pageY - 20*hk;
+	}
+}
+
+function documentTouchEndHandler(event) {
+	mouseIsDown = false;
+}
+
+function windowResizeHandler() {
+	w = window.innerWidth;
+	h = window.innerHeight;
+	
+	canvas.width = w;
+	canvas.height = h;
+	wk = w/fk;
+	hk = h/fk;
+	k = Math.sqrt(wk*hk);
+	var cvx = 0;
+	var cvy = 0;
+	
+	player.x = w/2;
+	player.y = h/2;
+	
+	canvas.style.position = 'absolute';
+	canvas.style.left = cvx + 'px';
+	canvas.style.top = cvy + 'px';
+	
+	message.style.left = 0 + 'px';
+	message.style.top = 0  + 'px';
+}
+
+function pointexplosion (p) {
+	createParticles( p.x2d, p.y2d, 8, 8, -0.04, pquantity, 10, p.size/8, p.size/400, p.color)
+}
+
+function loop() {
+	tick++;
+	ctx.globalAlpha = alpha;
+	ctx.fillStyle = bcolor;
+	bcolor = "black";
+	ctx.fillRect(0, 0, w, h);
+	
+  
+	var cx = mouseX;
+	var cy = mouseY;
+	var px = player.x;
+	var py = player.y
+	if(cx > pr + px){
+		cx = pr + px - 10;
+	}
+	if(cx < -pr + px){
+		cx = -pr + px + 10;
+	}
+	if(cy > pr + py){
+		cy = pr + py - 10;
+	}
+	if(cy < -pr + py){
+		cy = -pr + py + 10;
+	}
+	dx = cx - px;
+	dy = cy - py;
+  
+  
+	var i, j, ilen, jlen;
+  
+	if( playing ) {
+		difficulty += difficultychange;
+		
+		
+		velocity.x = dx * player.v;
+		velocity.y = dy * player.v;
+		velocity.z = -difficulty;
+		if(mouseIsDown === false){
+			velocity.x = 0;
+			velocity.y = 0;
+		}
+		player.x3d -= velocity.x;
+		player.y3d -= velocity.y;
+		
+		var ex = w/3;
+		var ey = h/3;
+		if(player.x3d > ex){
+			player.x3d = ex;
+			velocity.x = 0;
+		}
+		if(player.x3d < -ex){
+			player.x3d = -ex;
+			velocity.x = 0;
+		}
+		
+		if(player.y3d > ey){
+			player.y3d = ey;
+			velocity.y = 0;
+		}
+		if(player.y3d < -ey){
+			player.y3d = -ey;
+			velocity.y = 0;
+		}
+		
+		score += 0.1 * difficulty;
+		
+	} else {
+		velocity = { x: 0, y: 0, z: -1};
+	}
+	
+  
+	for( i = 0; i < points.length; i++ ) {
+		p = points[i];
+		
+		if( playing ) {
+			if(col(player, p)) {
+				life -= 1;
+				bcolor = "red";
+				if(difficulty > 1.5){
+					difficulty -= 1;
+				}
+				pointexplosion(p);
+				points.splice( i, 1 );
+				i --;
+				if (life <= 0 ){
+					gameOver();
+				}
+			}
+		}
+
+		draw3D(p);
+		p.x3d -= velocity.x + p.vx;
+		p.y3d -= velocity.y + p.vy;
+		p.z += velocity.z + p.vz;
+		if( p.x2d < -p.size*k || p.x2d>w+p.size*k || p.y2d<-p.size*k || p.y2d>h+p.size*k || p.z<-fov ) {
+			points.splice( i, 1 );
+			i --;
+			///points.unshift( positionNewOrganism( new point() ) )
+		}
+	}
+    
+   
+    if( points.length < pointq * Math.round(difficulty) ) {
+		for(var i = 0;i <= spawnq+Math.round(difficulty)*2;i++){
+			points.unshift( positionNewOrganism( new point() ) )
+	    }
+    }
+    
+    animParticles(ctx,k);
+	
+    if( playing ) {
+		drawplayer();
+		scoreText = 'Score:' + Math.round( score ) + '';
+		drawtext(scoreText, w/30*tk, h/8);
+		drawtext("lives:" + life, w - w/5.4*tk, h/8);
+	} else {
+		alpha = 1;
+		drawtitle();
+		if( finished ){
+			drawfinalscore();
+		}
+	}
+}
+
+function positionNewOrganism( p ) {
+
+	var z3d = depth+Math.random()*randomdepth;
+	var scale = fov/(fov+z3d); 	
+	
+	p.x3d = Math.random()*w-w/2+player.x3d//+velocity.x;
+	p.y3d = Math.random()*h-h/2+player.y3d//+velocity.y;
+	
+	var x2d = (p.x3d * scale) + w/2;	
+	var y2d = (p.y3d * scale) + h/2;
+	
+	p.x2d = x2d;
+	p.y2d = y2d;
+	p.z = z3d
+    return p;
+}
+  
+
+
+function distance2dTo(p, q) {
+	var dx = p.x-q.x2d;
+	var dy = p.y-q.y2d;
+	
+	return Math.sqrt(dx*dx + dy*dy);
+};
+function clonePosition(p) {
+	return { x: p.x, y: p.y };
+};
+
+function col(player, p){
+	return distance2dTo( player, p) < ( player.size + p.size ) * k && p.z<=-fov+p.r && playing;
+}
+
+function rpm() {
+	var rand = Math.random();
+	rand = Math.round(rand);
+	if(rand > 0.4) {
+		return 1;
+	}else {
+		return -1;
+	}
+}
+
+function player() {
+	this.x = w/2;
+	this.y = h/2;
+	var scale = fov/(fov+depth);
+	this.x3d = (this.x-w/2)/scale
+	this.y3d = (this.y-h/2)/scale
+	this.v = 0.05;
+	this.size = 80;
+}
+
+
+
+function point() {
+	this.x3d = 0;//Math.random()*w*2-w;
+	this.y3d = 0;//Math.random()*h*2-h ;
+	this.z = 0;//(Math.random()*400)-200 ;
+	
+	this.r = 1+Math.random()*pointsize;
+	this.vx = Math.random()*rpm()*pointvx;
+	this.vy = Math.random()*rpm()*pointvy;
+	this.vz = -Math.random()*pointvz;
+	this.color = Math.round(Math.random()*256) + ',' + Math.round(Math.random()*256) + ',' + Math.round(Math.random()*256) + '';//pointcolor;
+	this.size = 0;
+}
+
+
+/**GL**/
+function drawtext(text, x, y) { 
+	ctx.fillStyle = textcolor;
+	ctx.font = w/20*tk +"px Verdana";
+	ctx.textAlign = 'left';
+	ctx.shadowBlur = 0;
+    ctx.fillText(text, x, y);
+}
+function drawCircle(context, xPos, yPos, radius, color){
+    var startAngle = (Math.PI / 180) * 0;
+    var endAngle = (Math.PI / 180) * 360;
+    context.beginPath();
+    context.arc(xPos, yPos, Math.abs(radius), startAngle, endAngle, false);
+    context.fillStyle = color;
+    context.fill();
+}
+
+function draw3D(p){  
+	var z3d = p.z;
+	var x3d = p.x3d;
+	var y3d = p.y3d;
+	p.alpha = 1-z3d/(depth-randomdepth-100)
+	var c = ctx.fillStyle = 'rgba(' + p.color + ',' + p.alpha+')';
+	var rad = p.r;
+	var scale = fov/(fov+z3d); 
+	var x2d = (x3d * scale) + w/2;	
+	var y2d = (y3d * scale) + h/2;
+	p.size = scale*rad;
+	p.x2d = x2d + scale;
+	p.y2d = y2d;
+	ctx.shadowBlur=0;
+	drawCircle(ctx,x2d+scale,y2d,p.size*k,c);	
+}
+
+function drawplayer(){
+	/*ctx.shadowBlur = blur;
+	ctx.shadowColor = playercolor;
+	ctx.beginPath();
+	ctx.fillStyle = playercolor;
+	ctx.arc(player.x, player.y, player.size*k, 0, Math.PI*2, true);
+	ctx.fill();*/
+}
+
+
+
+function drawpoint(){
+	ctx.shadowBlur = blur;
+	ctx.shadowColor = pointcolor;
+	ctx.beginPath();
+	ctx.fillStyle = pointcolor;
+	ctx.arc(p.x, p.y, p.size*k, 0, Math.PI*2, true);
+	ctx.fill();
+}
+
+
+function drawfinalscore(){
+	var text = 'Game Over! (' + Math.round( score ) + ' points)';
+	ctx.textAlign = 'center';
+	ctx.fillStyle = textcolor;
+	ctx.font = w/30*tk +"px Verdana";
+	ctx.shadowBlur = blur;
+	ctx.shadowColor = textcolor;
+    ctx.fillText(text, w/2, h/3*tk);
+}
+
+function drawtitle(){
+	ctx.shadowBlur = blur*1.5;
+	ctx.shadowColor = textcolor;
+	var text = 'Cosinuos 3D';
+	ctx.textAlign = 'center';
+	ctx.fillStyle = textcolor;
+	ctx.font = w/8*tk +"px Verdana";
+    ctx.fillText(text, w/2, h/3.7*tk);
+}
+
+init();
+
+/*PARTICLES library*/
+
+function createParticles( x, y, vx, vy, acceleration, pq, spread, size, sizechange,color ) {
+	for (var i = 0; i < pq; i++) {
+		var p = {};
+		p.color = color;
+		p.size = Math.random()*size+5;
+		p.x = x + Math.random() * spread *rpm();
+		p.y = y + Math.random() * spread *rpm();
+		p.vx = rpm() * Math.random() * vx * size / p.size;
+		p.vy = rpm() * Math.random() * vy * size / p.size;
+		p.accel = acceleration;
+		p.sizechange = sizechange;
+		
+		particles.push( p );
+	}
+}
+
+function animParticles(ctx, k){
+    for( i = 0; i < particles.length; i++ ) {
+		p = particles[i];
+		
+		p.vx += p.vx*p.accel;
+		p.vy += p.vy*p.accel;
+		
+		p.x += p.vx;// * p.size;
+		p.y += p.vy;// * p.size;
+		
+		p.size -= p.sizechange;
+		drawparticle(ctx, k);
+		
+		if( p.size <= 0 ) {
+			particles.splice( i, 1 );
+			i--;	
+		}
+    }
+}
+
+
+
+function drawparticle(ctx,k){
+	ctx.shadowBlur = 0;
+	ctx.fillStyle = 'rgb(' + p.color + ')';
+	if(p.size>0){
+		ctx.beginPath();
+		ctx.arc(p.x, p.y, Math.abs(p.size*k), 0, Math.PI*2, true);
+		ctx.fill()
+	}
+}
+
+
+</script>
+</body>
+</html>
